@@ -10,7 +10,7 @@ class ScrollAppearManager {
         this.isRunning = false;
     }
 
-    add(element, instance) {
+    add(element) {
         if (this.findElement(element)) {
             return false;
         }
