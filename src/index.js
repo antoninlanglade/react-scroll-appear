@@ -52,7 +52,7 @@ class ScrollAppearManager {
 
     isVisible(element) {
         var bounds = element.getBoundingClientRect();
-        if (bounds.top  >= 0 && bounds.bottom - bounds.height*0.5<= window.innerHeight){
+        if (bounds.top <= window.innerHeight){
             return true;
         }
         else {
@@ -63,9 +63,9 @@ class ScrollAppearManager {
     run() {
         var visible;
         _.forEach(this.elements, (element) => {
+            if (element.appear) return true;
             visible = this.isVisible(element.el);
             if (!visible) return true;
-            if (element.appear) return true;
 
             if (this.isVisible(element.el) && !element.appear) {
                 element.appear = true;
