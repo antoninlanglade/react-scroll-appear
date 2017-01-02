@@ -80,26 +80,21 @@ class ScrollAppearManager {
 
 var scrollAppearManager = new ScrollAppearManager();
 
-var ScrollAppearDecorator = function ScrollAppearDecorator(options) {
-    var hasOffset = _.isNumber(options);
-    var offset = hasOffset ? options : 0;
-        
-    return function decorator(target) {
-        var componentDidMount = target.prototype.componentDidMount,
-            componentWillUnmount = target.prototype.componentWillUnmount;
-        // ComponentDidMount
-        target.prototype.componentDidMount = function() {
-            scrollAppearManager.add(this, offset);
-            console.log(scrollAppearManager.elements);
-            componentDidMount && componentDidMount.call(this);
-        };
+var ScrollAppearDecorator = function decorator(target) {
+    var componentDidMount = target.prototype.componentDidMount,
+        componentWillUnmount = target.prototype.componentWillUnmount;
 
-        // ComponentWillUnmount
-        target.prototype.componentWillUnmount = function() {
-            scrollAppearManager.remove(this);
-            componentWillUnmount && componentWillUnmount.call(this);
-        };
-    }
+    // ComponentDidMount
+    target.prototype.componentDidMount = function() {
+        scrollAppearManager.add(this);
+        componentDidMount && componentDidMount.call(this);
+    };
+
+    // ComponentWillUnmount
+    target.prototype.componentWillUnmount = function() {
+        scrollAppearManager.remove(this);
+        componentWillUnmount && componentWillUnmount.call(this);
+    };
 };
 
 export default {scrollAppearManager, ScrollAppearDecorator};
