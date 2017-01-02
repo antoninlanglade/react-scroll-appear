@@ -10,15 +10,17 @@ class ScrollAppearManager {
         this.isRunning = false;
     }
 
-    add(element) {
+    add(element, offset) {
         if (this.findElement(element)) {
             return false;
         }
         var object = {
             instance : element,
             el : ReactDOM.findDOMNode(element),
+            offset : offset ? offset : 0,
             appear : false
         };
+        console.log(object.offset);
         this.elements.push(object);
 
         if (this.elements.length > 0 && !this.isRunning) {
@@ -50,9 +52,9 @@ class ScrollAppearManager {
         }
     }
 
-    isVisible(element) {
+    isVisible(element, offset) {
         var bounds = element.getBoundingClientRect();
-        if (bounds.top <= window.innerHeight){
+        if (bounds.top + offset <= window.innerHeight){
             return true;
         }
         else {
@@ -64,7 +66,7 @@ class ScrollAppearManager {
         var visible;
         _.forEach(this.elements, (element) => {
             if (element.appear) return true;
-            visible = this.isVisible(element.el);
+            visible = this.isVisible(element.el, element.offset);
             if (!visible) return true;
 
             if (this.isVisible(element.el) && !element.appear) {
@@ -77,21 +79,23 @@ class ScrollAppearManager {
 
 var scrollAppearManager = new ScrollAppearManager();
 
-var ScrollAppearDecorator = function decorator(target) {
-    var componentDidMount = target.prototype.componentDidMount,
-        componentWillUnmount = target.prototype.componentWillUnmount;
+var ScrollAppearDecorator = function ScrollAppearDecorator(offset) {
+    var offset = offset || 0;
+    return function decorator(target) {
+        var componentDidMount = target.prototype.componentDidMount,
+            componentWillUnmount = target.prototype.componentWillUnmount;
+        // ComponentDidMount
+        target.prototype.componentDidMount = function() {
+            scrollAppearManager.add(this, offset);
+            componentDidMount && componentDidMount.call(this);
+        };
 
-    // ComponentDidMount
-    target.prototype.componentDidMount = function() {
-        scrollAppearManager.add(this);
-        componentDidMount && componentDidMount.call(this);
-    };
-
-    // ComponentWillUnmount
-    target.prototype.componentWillUnmount = function() {
-        scrollAppearManager.remove(this);
-        componentWillUnmount && componentWillUnmount.call(this);
-    };
+        // ComponentWillUnmount
+        target.prototype.componentWillUnmount = function() {
+            scrollAppearManager.remove(this);
+            componentWillUnmount && componentWillUnmount.call(this);
+        };
+    }
 };
 
 export default {scrollAppearManager, ScrollAppearDecorator};
