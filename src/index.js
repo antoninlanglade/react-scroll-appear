@@ -17,10 +17,10 @@ class ScrollAppearManager {
         var object = {
             instance : element,
             el : ReactDOM.findDOMNode(element),
-            offset : offset ? offset : 0,
+            offset : offset !== void(0) ? offset : 0,
             appear : false
         };
-        console.log(object.offset);
+        
         this.elements.push(object);
 
         if (this.elements.length > 0 && !this.isRunning) {
@@ -54,6 +54,7 @@ class ScrollAppearManager {
 
     isVisible(element, offset) {
         var bounds = element.getBoundingClientRect();
+        
         if (bounds.top + offset <= window.innerHeight){
             return true;
         }
@@ -69,7 +70,7 @@ class ScrollAppearManager {
             visible = this.isVisible(element.el, element.offset);
             if (!visible) return true;
 
-            if (this.isVisible(element.el) && !element.appear) {
+            if (visible && !element.appear) {
                 element.appear = true;
                 element.instance.scrollAppear && element.instance.scrollAppear();
             }
@@ -79,14 +80,17 @@ class ScrollAppearManager {
 
 var scrollAppearManager = new ScrollAppearManager();
 
-var ScrollAppearDecorator = function ScrollAppearDecorator(offset) {
-    var offset = offset || 0;
+var ScrollAppearDecorator = function ScrollAppearDecorator(options) {
+    var hasOffset = _.isNumber(options);
+    var offset = hasOffset ? options : 0;
+        
     return function decorator(target) {
         var componentDidMount = target.prototype.componentDidMount,
             componentWillUnmount = target.prototype.componentWillUnmount;
         // ComponentDidMount
         target.prototype.componentDidMount = function() {
             scrollAppearManager.add(this, offset);
+            console.log(scrollAppearManager.elements);
             componentDidMount && componentDidMount.call(this);
         };
 
